@@ -13,17 +13,27 @@ class ReportFileError(Exception):
 
 
 class EmailSender:
-    """Class used to initialize email user and coordinate email distribution
+    """Class used to initialize email user and coordinate email distribution.
+
+    :method _start_login_session: creates SMTP session with provided credentials
+    :method _create_email: creates email body and attaches file if provided
+    :method send_message: sends email as html email. Can attach file
     """
 
     def __init__(
             self,
-            email_message: [str, None],
             subject: str,
-            cc_emails: [str],
             to_email: str,
+            cc_emails: [str],
+            email_message: str = None,
     ):
-        """Initializes email sender object."""
+        """Initializes email sender object.
+
+        :param subject: subject of the email
+        :param to_email: email reciver adress
+        :param cc_emails: list of emails to be sent as CC
+        :param email_message: message to be sent in the email, optional
+        """
 
         self.sender_email = os.getenv("SENDER_EMAIL")
         self.sender_password = os.getenv("SENDER_PASSWORD")
@@ -54,7 +64,7 @@ class EmailSender:
         return session
 
     def _create_email(self, file_name: str = None):
-        """Sets up MIME creates whole email template and attaches report
+        """Creating email body and attaches file if provided.
 
         :param file_name: name of report .xlsx file
         :return: email as string
@@ -63,7 +73,7 @@ class EmailSender:
         message = MIMEMultipart()
         message['From'] = self.sender_email
         message['Subject'] = self.subject
-        message['CC'] = self.cc_email
+        message['CC'] = self.cc_emails
         message['To'] = self.to_email
 
         message.attach(MIMEText(self.email_message, 'plain'))
@@ -97,4 +107,5 @@ class EmailSender:
 
     def __del__(self):
         """Log out and close session"""
+
         self.session.quit()
