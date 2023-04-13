@@ -96,7 +96,7 @@ class EmailSender:
     def send_message(self, file_name: str = None):
         """Sends email as html email. Can attach file.
 
-        :param file_name: name of the file to be attached
+        :param file_name: name of the file to be attached, optional
         """
 
         self.session.sendmail(

@@ -7,7 +7,7 @@ pip install -U pytest
 ```
 ##  <span style="color:#5982DB">  Struktura projektu
 * Wszystkie testy powinny znajdować się w folderze tests.
-* Nazwy plików z testami powinny zaczynać się od test_. 
+* Nazwy plików z testami powinny zaczynać się od test_. Konwencjonalnie jest to "test_nazwa_pliku_który_testujemy.py"
 * Również nazwy klas/funkcji testowych powinny zaczynać się od test_.
 
 Stosowanie tych reguł pozwala na automatyczne wykrycie testów przez bibliotekę pytest i uruchomienie ich przy użyciu niżej opisanych komend.
@@ -55,7 +55,7 @@ pytest --durations=2 # wyświetla 2 najdłuższe testy
 Wszystkie parametry dostępne [w dokumentacji](https://docs.pytest.org/en/7.3.x/reference/reference.html#command-line-flags).
 
 ### <span style="color:#665EB8"> Przydatna Wtyczka 
-[pytest-cov](https://pypi.org/project/pytest-cov/) - Pozwala sprawdzić pokrycie kodu testami
+[pytest-cov](https://pypi.org/project/pytest-cov/) - Pozwala sprawdzić pokrycie kodu testami. Pełna dokumentacja dostępna [tutaj](https://pytest-cov.readthedocs.io/en/latest/).
 ```bash
 pip install pytest-cov
 ```
@@ -73,20 +73,24 @@ Pytest ma możliwość odczytania konfiguracji z jednego z trzech plików:
 * setup.cfg - plik konfiguracyjny dla biblioteki setuptools
 
 Jeżeli nasz projekt nie używa żadnej z tych bibliotek, to najlepiej jest użyć pliku pytest.ini.
+Plik konfiguracyjny powinien znajdować się w **folderze głównym projektu**.
 
-W tym pliku można określić domyślne parametry, które będą używane przy uruchamianiu testów. 
+W tym pliku można określić m.in. domyślne flagi, które będą używane przy uruchamianiu testów oraz 
+dodatkowe markery, które można używać w testach.
+Więcej informacji o możliwych parametrach [tutaj](https://docs.pytest.org/en/7.3.x/reference/reference.html#ini-options-ref).
 ```ini
 [pytest]
 addopts = -v -s
 markers =
-    example: example marker
+    example: example marker description
 ```
 Taki plik spowoduje wyświetlenie dodatkowych informacji o testach (v) oraz wyświetlenie printów(s) przy każdym uruchomieniu testów.
-Dodatkowo zostanie utworzony marker o nazwie example, który będzie można używać w testach.
+Dodatkowo zostanie utworzony marker o nazwie example, który będzie można używać w testach. 
 ## <span style="color:#5982DB">  conftest.py - plik zawierający współdzielone fixtures
 Każdy folder zawierający testy może posiadać swój plik conftest. 
 W tym pliku można umieszczać fixtures, które będą używane w wielu testach, szczególnie jeśli znajdują się one w osobnych plikach. 
 Zostaną one automatycznie zaimportowane do każdego testu z tego folderu.
+Więcej informacji o pliku conftest [tutaj](https://docs.pytest.org/en/7.3.x/reference/reference.html#conftest-py-sharing-fixture-functions).
 ```python
 import pytest
 
