@@ -7,8 +7,9 @@ from email.header import Header
 import smtplib
 
 
-class ReportFileError(Exception):
+class AttachementError(Exception):
     """Raised when a report file is missing or is corrupted"""
+
     pass
 
 
@@ -21,11 +22,11 @@ class EmailSender:
     """
 
     def __init__(
-            self,
-            subject: str,
-            to_email: str,
-            cc_emails: [str],
-            email_message: str = None,
+        self,
+        subject: str,
+        to_email: str,
+        cc_emails: [str],
+        email_message: str = None,
     ):
         """Initializes email sender object.
 
@@ -42,15 +43,16 @@ class EmailSender:
 
         self.subject = subject
         self.to_email = to_email
-        self.cc_emails = ','.join(cc_emails)
+        self.cc_emails = ",".join(cc_emails)
+        self.session = self._start_login_session()
 
         if email_message:
             self.email_message = email_message
         else:
-            with open(os.getenv("EMAIL_TEMPLATE_PATH"), 'r') as template_file:
+            if not os.getenv("EMAIL_TEMPLATE_PATH").endswith(".txt"):
+                raise AttachementError("Email path env should lead to .txt file!")
+            with open(os.getenv("EMAIL_TEMPLATE_PATH"), "r") as template_file:
                 self.email_message = template_file.read()
-
-        self.session = self._start_login_session()
 
     def _start_login_session(self):
         """Creates email session with provided credentials
@@ -71,23 +73,25 @@ class EmailSender:
         """
 
         message = MIMEMultipart()
-        message['From'] = self.sender_email
-        message['Subject'] = self.subject
-        message['CC'] = self.cc_emails
-        message['To'] = self.to_email
+        message["From"] = self.sender_email
+        message["Subject"] = self.subject
+        message["CC"] = self.cc_emails
+        message["To"] = self.to_email
 
-        message.attach(MIMEText(self.email_message, 'plain'))
+        message.attach(MIMEText(self.email_message, "plain"))
 
         if file_name:
             reports_path = os.path.join(os.getenv("REPORT_PATH"), file_name)
-            with open(reports_path, 'rb') as attachment:
-                header_charset = 'ISO-8859-2'
+            with open(reports_path, "rb") as attachment:
+                header_charset = "ISO-8859-2"
                 f_name = os.path.basename(file_name)
-                part = MIMEBase('application', 'octet-stream')
+                part = MIMEBase("application", "octet-stream")
                 part.set_payload(attachment.read())
-                part.add_header('Content-Disposition',
-                                "attachment",
-                                filename=(str(Header(f_name, header_charset))))
+                part.add_header(
+                    "Content-Disposition",
+                    "attachment",
+                    filename=(str(Header(f_name, header_charset))),
+                )
                 encoders.encode_base64(part)
                 message.attach(part)
 
@@ -102,7 +106,11 @@ class EmailSender:
         self.session.sendmail(
             self.sender_email,
             self.to_email + self.cc_emails,
-            self._create_email(file_name=file_name)
+            self._create_email(file_name=file_name),
+        )
+        print(
+            f"Email had been sent from "
+            f"{self.sender_email} to {self.to_email}, {self.cc_emails}"
         )
 
     def __del__(self):
