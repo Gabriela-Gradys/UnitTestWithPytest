@@ -10,23 +10,19 @@ jobs:
   PR_checklist:
     runs-on: ubuntu-latest
     steps:
-      - name: Add Message to PR
-        uses: actions/github-script@v4
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const message = `Pull Request to develop Checks
+          message: |
+            Pull Request to develop Checks
             [] Zaktualizowano testy o nowe funkcjonalności
             [] Loakalnie odpalono testy i wszystkie przeszły
             [] Zaktualizowano dokumentację w README o nowe funkcjonalności
-            [] Sprawdzono wszystkie zmienione pliki pylintem i blackiem`;
-            
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: message
-            });
+            [] Sprawdzono wszystkie zmienione pliki pylintem i blackiem
+
   flake8-lint:
     runs-on: ubuntu-latest
     name: Lint
