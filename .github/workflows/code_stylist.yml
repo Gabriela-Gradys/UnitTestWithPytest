@@ -15,10 +15,10 @@ jobs:
         with:
           message: |
             Pull Request to develop Checks
-            [] Zaktualizowano testy o nowe funkcjonalności
-            [] Loakalnie odpalono testy i wszystkie przeszły
-            [] Zaktualizowano dokumentację w README o nowe funkcjonalności
-            [] Sprawdzono wszystkie zmienione pliki pylintem i blackiem
+            - [ ] Zaktualizowano testy o nowe funkcjonalności
+            - [ ] Loakalnie odpalono testy i wszystkie przeszły
+            - [ ] Zaktualizowano dokumentację w README o nowe funkcjonalności
+            - [ ] Sprawdzono wszystkie zmienione pliki pylintem i blackiem
 
   flake8-lint:
     runs-on: ubuntu-latest
