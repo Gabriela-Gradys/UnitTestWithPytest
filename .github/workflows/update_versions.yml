@@ -55,17 +55,10 @@ jobs:
         git commit -m "update repository version"
         git push origin ${{ github.event.pull_request.head.ref }}
 
-    - name: Checkout target branch
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-        ref: ${{ github.event.pull_request.base.ref }}
-        token: ${{ secrets.ACTIONS_TOKEN }}
-
     - name: Merge branches
-      uses: repo-sync/pull-request@v2
+      uses: devmasx/merge-branch@master
       with:
-        source_branch: ${{ github.event.pull_request.head.ref }}
-        destination_branch: ${{ github.event.pull_request.base.ref }}
-        pr_title: "Update versions"
+        type: now
+        from_branch: ${{ github.event.pull_request.head.ref }}
+        target_branch: ${{ github.event.pull_request.base.ref  }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
