@@ -66,6 +66,6 @@ jobs:
       uses: repo-sync/pull-request@v2
       with:
         source_branch: ${{ github.event.pull_request.head.ref }}
-        target_branch: ${{ github.event.pull_request.base.ref }}
+        destination_branch: ${{ github.event.pull_request.base.ref }}
         pr_title: "Update versions"
         github_token: ${{ secrets.GITHUB_TOKEN }}
