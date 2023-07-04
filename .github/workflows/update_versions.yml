@@ -1,0 +1,70 @@
+name: Update Versions
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - develop
+
+jobs:
+  update_versions:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check if pull request was merged
+      if: github.event.pull_request.merged == false
+      run: exit 1
+
+    - name: GH_TOKEN
+      if: env.GH_TOKEN == ''
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+      run: echo "GH_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
+
+    - name: Checkout after changes
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.ref }}
+        token: ${{ secrets.ACTIONS_TOKEN }}
+        
+    - name: Run script
+      run: |
+        cd versions
+        cat _versions_.py
+        if [ "${{ github.event.pull_request.base.ref  }}" == "main" ]; then
+          echo "New marge into main"
+          awk '/version/ {$3 = sprintf("%.1f", $3 + 1.0)} /develop_version/ {$3 = sprintf("%.1f", int($3))} 1' _versions_.py > temp.py && mv temp.py _versions_.py
+        elif [ "${{ github.event.pull_request.base.ref  }}" == "develop"  ]; then
+          echo "New marge into develop"
+          awk '/develop_version =/ {$3 += 0.1; print} !/develop_version =/ {print}' _versions_.py > temp.py && mv temp.py _versions_.py
+        fi
+        cd ..
+
+    - name: Debug
+      run: |
+        cat versions/_versions_.py
+        git status
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "Github Actions"
+        git config --global user.email "action@github.com"
+        git add -A
+        git commit -m "update repository version"
+        git push origin ${{ github.event.pull_request.head.ref }}
+
+    - name: Checkout target branch
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.base.ref }}
+        token: ${{ secrets.ACTIONS_TOKEN }}
+
+    - name: Merge branches
+      uses: repo-sync/pull-request@v3
+      with:
+        source_branch: ${{ github.event.pull_request.head.ref }}
+        target_branch: ${{ github.event.pull_request.base.ref }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
